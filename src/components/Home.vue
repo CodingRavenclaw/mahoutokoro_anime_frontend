@@ -3,8 +3,9 @@
     <div class="row h-100">
       <div class="col-12 my-auto text-white">
         <h1 class="text-center mb-3 calibri-light">Mahoutokoro Anime Checker</h1>
-        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed some not. You can find it out quickly by searching for your anime in the text box below. If your anime is
-        not found, please contact the database administrator.</p>
+        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed some not.
+          You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database.
+          If your anime is not found, please contact the database administrator.</p>
         <form class="my-3">
           <div class="row">
             <div class="col-4"></div>
@@ -19,12 +20,36 @@
         <table class="table table-light table-striped" :class="{'d-none': !arrAnime.length || !strSearch.length}">
           <thead>
             <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Studio</th>
-              <th scope="col">Author</th>
-              <th scope="col">Year</th>
-              <th scope="col">Country</th>
-              <th scope="col">Allowed?</th>
+              <th scope="col" :class="{
+                'bg-primary': this.strOrderBy === 'anime_name',
+                'order-by-asc': this.strOrderBy === 'anime_name' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'anime_name' && this.strOrder === 'DESC'
+              }" @click="orderByName">Name</th>
+              <th scope="col" :class="{
+                'bg-primary' : this.strOrderBy === 'studio_name',
+                'order-by-asc': this.strOrderBy === 'studio_name' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'studio_name' && this.strOrder === 'DESC'
+              }" @click="orderByStudio">Studio</th>
+              <th scope="col" :class="{
+                'bg-primary': this.strOrderBy === 'author_last_name',
+                'order-by-asc': this.strOrderBy === 'author_last_name' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'author_last_name' && this.strOrder === 'DESC'
+              }" @click="orderByAuthor">Author</th>
+              <th scope="col" :class="{
+                'bg-primary': this.strOrderBy === 'year',
+                'order-by-asc': this.strOrderBy === 'year' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'year' && this.strOrder === 'DESC'
+              }" @click="orderByYear">Year</th>
+              <th scope="col" :class="{
+                'bg-primary': this.strOrderBy === 'country_id',
+                'order-by-asc': this.strOrderBy === 'country_id' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'country_id' && this.strOrder === 'DESC'
+              }" @click="orderByCountry">Country</th>
+              <th scope="col" :class="{
+                'bg-primary': this.strOrderBy === 'is_allowed',
+                'order-by-asc': this.strOrderBy === 'is_allowed' && this.strOrder === 'ASC',
+                'order-by-desc': this.strOrderBy === 'is_allowed' && this.strOrder === 'DESC'
+              }" @click="orderByIsAllowed">Allowed?</th>
             </tr>
           </thead>
           <tbody>
@@ -59,15 +84,18 @@ export default defineComponent({
     return {
       strUrlToGetAnime: 'http://localhost:3000/anime/getanime',
       strUrlToGetTotalNumberOfAnime: 'http://localhost:3000/anime/gettotalnumberofanime',
+      strUrlToGetTotalNumberOfAnimeInDatabase: 'http://localhost:3000/anime/gettotalnumberofanimeindatabase',
       arrAnime: [],
       intDataSet: 0,
       strOrderBy: 'anime_id',
       strOrder: 'ASC',
+      intOrderCounter: 0,
       strSearch: '',
       strAnimeSearch: '',
       boolAnimeNotFound: 0,
       intDataPerPage: 10,
       intTotalNumberOfAnime: 0,
+      intTotalNumberOfAnimeInDatabase: 0,
       intPagesToDisplay: 5
     }
   },
@@ -83,6 +111,15 @@ export default defineComponent({
         { strSearch: this.strAnimeSearch }
       ).then(res => {
         this.intTotalNumberOfAnime = Number(res.data.data[0].total_number_of_anime)
+      }).catch(err => {
+        console.error(err)
+      })
+    },
+    getTotalNumberOfAnimeInDatabase () {
+      this.$http.get(
+        this.strUrlToGetTotalNumberOfAnimeInDatabase
+      ).then(res => {
+        this.intTotalNumberOfAnimeInDatabase = res.data.data[0].total_number_of_anime_in_database
       }).catch(err => {
         console.error(err)
       })
@@ -111,10 +148,52 @@ export default defineComponent({
         })
       })
     },
+    orderByName () {
+      this.strOrderBy = 'anime_name'
+      this.changeOrder()
+    },
+    orderByStudio () {
+      this.strOrderBy = 'studio_name'
+      this.changeOrder()
+    },
+    orderByAuthor () {
+      this.strOrderBy = 'author_last_name'
+      this.changeOrder()
+    },
+    orderByYear () {
+      this.strOrderBy = 'year'
+      this.changeOrder()
+    },
+    orderByCountry () {
+      this.strOrderBy = 'country_id'
+      this.changeOrder()
+    },
+    orderByIsAllowed () {
+      this.strOrderBy = 'is_allowed'
+      this.changeOrder()
+    },
+    changeOrder () {
+      this.intOrderCounter++
+      if (this.intOrderCounter === 1) {
+        this.strOrder = 'ASC'
+        this.getAnime()
+      } else if (this.intOrderCounter === 2) {
+        this.strOrder = 'DESC'
+        this.getAnime()
+      } else {
+        this.strOrder = 'ASC'
+        this.strOrderBy = 'anime_id'
+        this.intOrderCounter = 0
+        this.getAnime()
+      }
+    },
     changeDataSet (intADataSet: number) {
       this.intDataSet = intADataSet
       this.getAnime()
     }
+  },
+  beforeMount () {
+    this.getTotalNumberOfAnimeInDatabase()
   }
 })
 </script>
@@ -122,5 +201,22 @@ export default defineComponent({
 <style lang="scss" scoped>
   .calibri-light {
     font-family: "Calibri Light", sans-serif;
+  }
+  th:hover {
+    background-color: #0d6efd;
+    color: white;
+    cursor: pointer;
+  }
+  .order-by-asc {
+    color: white;
+  }
+  .order-by-asc::after {
+    content: ' ⬆️';
+  }
+  .order-by-desc {
+    color: white;
+  }
+  .order-by-desc::after {
+    content: ' ⬇️';
   }
 </style>
