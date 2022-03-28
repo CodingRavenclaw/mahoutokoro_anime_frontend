@@ -3,9 +3,8 @@
 </template>
 <style lang="scss">
 #app {
-  min-height: 100vh;
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  background: linear-gradient(rgba(0, 0, 0, 0.30), rgba(0, 0, 0, 0.30)), url("assets/wallaper/mahoutokoro.jpeg") no-repeat center center fixed;
+  font-family: Calibri, Helvetica, Arial, sans-serif;
+  background: linear-gradient(rgba(0, 0, 0, 0.60), rgba(0, 0, 0, 0.60)), url("assets/wallaper/mahoutokoro.jpeg") no-repeat center center fixed;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-background-size: cover;
