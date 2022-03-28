@@ -58,6 +58,7 @@ export default defineComponent({
   data () {
     return {
       strUrlToGetAnime: 'http://localhost:3000/anime/getanime',
+      strUrlToGetTotalNumberOfAnime: 'http://localhost:3000/anime/gettotalnumberofanime',
       arrAnime: [],
       intDataSet: 0,
       strOrderBy: 'anime_id',
@@ -66,31 +67,48 @@ export default defineComponent({
       strAnimeSearch: '',
       boolAnimeNotFound: 0,
       intDataPerPage: 10,
-      intTotalNumberOfAnime: 20,
+      intTotalNumberOfAnime: 0,
       intPagesToDisplay: 5
     }
   },
   methods: {
+    async getTotalNumberOfAnime () {
+      if (this.strSearch === 'ALL') {
+        this.strAnimeSearch = ''
+      } else {
+        this.strAnimeSearch = this.strSearch
+      }
+      return this.$http.post(
+        this.strUrlToGetTotalNumberOfAnime,
+        { strSearch: this.strAnimeSearch }
+      ).then(res => {
+        this.intTotalNumberOfAnime = Number(res.data.data[0].total_number_of_anime)
+      }).catch(err => {
+        console.error(err)
+      })
+    },
     getAnime () {
       if (this.strSearch === 'ALL') {
         this.strAnimeSearch = ''
       } else {
         this.strAnimeSearch = this.strSearch
       }
-      this.$http.post(
-        this.strUrlToGetAnime,
-        { intDataSet: this.intDataSet, intDataLimit: this.intDataPerPage, strOrder: this.strOrder, strOrderBy: this.strOrderBy, strSearch: this.strAnimeSearch }
-      ).then(res => {
-        this.boolAnimeNotFound = 0
-        this.arrAnime = res.data.data
-        const pagination: any = this.$refs.pagination
-        pagination.calculatePages()
-        pagination.checkDeactivationLogic()
-        if (!this.arrAnime.length) {
-          this.boolAnimeNotFound = 1
-        }
-      }).catch(err => {
-        console.error(err)
+      this.getTotalNumberOfAnime().then(() => {
+        this.$http.post(
+          this.strUrlToGetAnime,
+          { intDataSet: this.intDataSet, intDataLimit: this.intDataPerPage, strOrder: this.strOrder, strOrderBy: this.strOrderBy, strSearch: this.strAnimeSearch }
+        ).then(res => {
+          this.boolAnimeNotFound = 0
+          this.arrAnime = res.data.data
+          const pagination: any = this.$refs.pagination
+          pagination.calculatePages()
+          pagination.checkDeactivationLogic()
+          if (!this.arrAnime.length) {
+            this.boolAnimeNotFound = 1
+          }
+        }).catch(err => {
+          console.error(err)
+        })
       })
     },
     changeDataSet (intADataSet: number) {
