@@ -101,6 +101,9 @@ export default defineComponent({
     }
   },
   methods: {
+    /**
+     *  Gets the total number of anime and returns a promise with the result.
+     */
     async getTotalNumberOfAnime () {
       if (this.strSearch === 'ALL') {
         this.strAnimeSearch = ''
@@ -116,6 +119,9 @@ export default defineComponent({
         console.error(err)
       })
     },
+    /**
+     *  Gets the total number of anime stored in the database.
+     */
     getTotalNumberOfAnimeInDatabase () {
       this.$http.get(
         this.strUrlToGetTotalNumberOfAnimeInDatabase
@@ -125,6 +131,16 @@ export default defineComponent({
         console.error(err)
       })
     },
+    /**
+     *  Gets an anime by posting the following data to the backend:
+     *
+     *  intDataSet: The dataset of the pagination
+     *  intDataLimit: The datalimit of the shown data per page
+     *  strOrder: The sort column of the data
+     *  strOrderBy: The sort direction of the data (ASC or DESC)
+     *  strSearch: The search criterion to get a specific anime
+     *
+     */
     getAnime () {
       if (this.strSearch === 'ALL') {
         this.strAnimeSearch = ''
@@ -149,30 +165,51 @@ export default defineComponent({
         })
       })
     },
+    /**
+     *  Changes the sort order to the anime name.
+     */
     orderByName () {
       this.strOrderBy = 'anime_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the studio name.
+     */
     orderByStudio () {
       this.strOrderBy = 'studio_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the author's last name.
+     */
     orderByAuthor () {
       this.strOrderBy = 'author_last_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the release year.
+     */
     orderByYear () {
       this.strOrderBy = 'year'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the country.
+     */
     orderByCountry () {
       this.strOrderBy = 'country_id'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the allowance.
+     */
     orderByIsAllowed () {
       this.strOrderBy = 'is_allowed'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to ASC or DESC or the default sorting.
+     */
     changeOrder () {
       this.intOrderCounter++
       if (this.intOrderCounter === 1) {
@@ -188,6 +225,11 @@ export default defineComponent({
         this.getAnime()
       }
     },
+    /**
+     *  Changes the current dataset for the pagination.
+     *
+     * @param intADataSet The dataset as a number.
+     */
     changeDataSet (intADataSet: number) {
       this.intDataSet = intADataSet
       this.getAnime()
