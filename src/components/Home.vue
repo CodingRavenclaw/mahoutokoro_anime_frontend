@@ -3,16 +3,17 @@
     <div class="row h-100">
       <div class="col-12 my-auto text-white">
         <h1 class="text-center mb-3 calibri-light">Mahoutokoro Anime Checker</h1>
-        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed some not.
-          You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database.
+        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed and some not.
+          You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database. <br>
           If your anime is not found, please contact the database administrator.</p>
         <form class="my-3">
           <div class="row">
             <div class="col-4"></div>
             <div class="col-4">
-              <div class="text-end">
-              <input type="search" class="form-control" id="searchAnime" v-model="strSearch" v-on:input="getAnime" name="qryAnime" maxlength="32" placeholder="Type the name of the anime here...">
-            </div>
+              <div class="input-group">
+                <div class="input-group-text">🔎</div>
+                <input type="search" class="form-control" id="searchAnime" v-model="strSearch" v-on:input="getAnime" name="qryAnime" maxlength="32" placeholder="Type the name of the anime here...">
+              </div>
             </div>
             <div class="col-4"></div>
           </div>
