@@ -3,16 +3,17 @@
     <div class="row h-100">
       <div class="col-12 my-auto text-white">
         <h1 class="text-center mb-3 calibri-light">Mahoutokoro Anime Checker</h1>
-        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed some not.
-          You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database.
+        <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed and some not.
+          You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database. <br>
           If your anime is not found, please contact the database administrator.</p>
         <form class="my-3">
           <div class="row">
             <div class="col-4"></div>
             <div class="col-4">
-              <div class="text-end">
-              <input type="search" class="form-control" id="searchAnime" v-model="strSearch" v-on:input="getAnime" name="qryAnime" maxlength="32" placeholder="Type the name of the anime here...">
-            </div>
+              <div class="input-group">
+                <div class="input-group-text">🔎</div>
+                <input type="search" class="form-control" id="searchAnime" v-model="strSearch" v-on:input="getAnime" name="qryAnime" maxlength="32" placeholder="Type the name of the anime here...">
+              </div>
             </div>
             <div class="col-4"></div>
           </div>
@@ -100,6 +101,9 @@ export default defineComponent({
     }
   },
   methods: {
+    /**
+     *  Gets the total number of anime and returns a promise with the result.
+     */
     async getTotalNumberOfAnime () {
       if (this.strSearch === 'ALL') {
         this.strAnimeSearch = ''
@@ -115,6 +119,9 @@ export default defineComponent({
         console.error(err)
       })
     },
+    /**
+     *  Gets the total number of anime stored in the database.
+     */
     getTotalNumberOfAnimeInDatabase () {
       this.$http.get(
         this.strUrlToGetTotalNumberOfAnimeInDatabase
@@ -124,6 +131,16 @@ export default defineComponent({
         console.error(err)
       })
     },
+    /**
+     *  Gets an anime by posting the following data to the backend:
+     *
+     *  intDataSet: The dataset of the pagination
+     *  intDataLimit: The datalimit of the shown data per page
+     *  strOrder: The sort column of the data
+     *  strOrderBy: The sort direction of the data (ASC or DESC)
+     *  strSearch: The search criterion to get a specific anime
+     *
+     */
     getAnime () {
       if (this.strSearch === 'ALL') {
         this.strAnimeSearch = ''
@@ -148,30 +165,51 @@ export default defineComponent({
         })
       })
     },
+    /**
+     *  Changes the sort order to the anime name.
+     */
     orderByName () {
       this.strOrderBy = 'anime_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the studio name.
+     */
     orderByStudio () {
       this.strOrderBy = 'studio_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the author's last name.
+     */
     orderByAuthor () {
       this.strOrderBy = 'author_last_name'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the release year.
+     */
     orderByYear () {
       this.strOrderBy = 'year'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the country.
+     */
     orderByCountry () {
       this.strOrderBy = 'country_id'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to the allowance.
+     */
     orderByIsAllowed () {
       this.strOrderBy = 'is_allowed'
       this.changeOrder()
     },
+    /**
+     *  Changes the sort order to ASC or DESC or the default sorting.
+     */
     changeOrder () {
       this.intOrderCounter++
       if (this.intOrderCounter === 1) {
@@ -187,6 +225,11 @@ export default defineComponent({
         this.getAnime()
       }
     },
+    /**
+     *  Changes the current dataset for the pagination.
+     *
+     * @param intADataSet The dataset as a number.
+     */
     changeDataSet (intADataSet: number) {
       this.intDataSet = intADataSet
       this.getAnime()
