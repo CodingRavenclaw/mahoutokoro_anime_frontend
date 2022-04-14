@@ -1,11 +1,16 @@
 <template>
   <div id="mainframe" class="container-fluid vh-100">
     <div class="row h-100">
-      <div class="col-12 my-auto text-white">
+      <div class="col-12 my-auto text-red" v-if="this.boolFatalError">
+        <h1 class="text-center fw-bolder calibri-light">🙇 Gomen-nasai! 🙇</h1>
+        <p class="text-center fw-bold">The application is currently offline or in maintenance. If the error still occurs after a while, please contact the
+          <a href="mailto:samara.cheung@mahoutokoro.jp">database administrator</a>.</p>
+      </div>
+      <div class="col-12 my-auto text-white" v-if="!this.boolFatalError">
         <h1 class="text-center mb-3 calibri-light">Mahoutokoro Anime Checker</h1>
         <p class="text-center"> Do you want to bring your favorite anime to Mahoutokoro? Some anime are allowed and some not.
           You can find it out quickly by searching for your anime in the text box below. There are currently {{ this.intTotalNumberOfAnimeInDatabase }} anime in the database. <br>
-          If your anime is not found, please contact the database administrator.</p>
+          If your anime is not found, please contact the <a href="mailto:samara.cheung@mahoutokoro.jp">database administrator</a>.</p>
         <form class="my-3">
           <div class="row">
             <div class="col-4"></div>
@@ -41,12 +46,12 @@
                 'order-by-asc': this.strOrderBy === 'year' && this.strOrder === 'ASC',
                 'order-by-desc': this.strOrderBy === 'year' && this.strOrder === 'DESC'
               }" @click="orderByYear">Year</th>
-              <th scope="col" :class="{
+              <th scope="col" class="text-center" :class="{
                 'bg-primary': this.strOrderBy === 'country_id',
                 'order-by-asc': this.strOrderBy === 'country_id' && this.strOrder === 'ASC',
                 'order-by-desc': this.strOrderBy === 'country_id' && this.strOrder === 'DESC'
               }" @click="orderByCountry">Country</th>
-              <th scope="col" :class="{
+              <th scope="col" class="text-center" :class="{
                 'bg-primary': this.strOrderBy === 'is_allowed',
                 'order-by-asc': this.strOrderBy === 'is_allowed' && this.strOrder === 'ASC',
                 'order-by-desc': this.strOrderBy === 'is_allowed' && this.strOrder === 'DESC'
@@ -59,8 +64,8 @@
               <td> {{ anime.studio_name }}</td>
               <td> {{ anime.author_first_name + ' ' + anime.author_last_name }}</td>
               <td> {{ anime.year }}</td>
-              <td> {{ anime.country_flag }}</td>
-              <td> {{ anime.is_allowed ? '✅' : '❌' }}</td>
+              <td class="text-center"> {{ anime.country_flag }}</td>
+              <td class="text-center"> {{ anime.is_allowed ? '✅' : '❌' }}</td>
             </tr>
           </tbody>
         </table>
@@ -70,6 +75,7 @@
           Anime not found!
         </div>
       </div>
+      <footer class="position-absolute w-100 bottom-0 text-white fst-italic text-center py-2">(c) Ravenclaw Programming and Hardware Group Corp.</footer>
     </div>
   </div>
 </template>
@@ -83,21 +89,29 @@ export default defineComponent({
   components: { Pagination },
   data () {
     return {
+      // URLs to the routes of the backend
       strUrlToGetAnime: 'http://localhost:3000/anime/getanime',
       strUrlToGetTotalNumberOfAnime: 'http://localhost:3000/anime/gettotalnumberofanime',
       strUrlToGetTotalNumberOfAnimeInDatabase: 'http://localhost:3000/anime/gettotalnumberofanimeindatabase',
+      // Data array
       arrAnime: [],
+      // Pagination
       intDataSet: 0,
+      intDataPerPage: 10,
+      intTotalNumberOfAnime: 0,
+      intPagesToDisplay: 5,
+      // Ordering
       strOrderBy: 'anime_id',
       strOrder: 'ASC',
       intOrderCounter: 0,
+      // Search criterions
       strSearch: '',
       strAnimeSearch: '',
-      boolAnimeNotFound: 0,
-      intDataPerPage: 10,
-      intTotalNumberOfAnime: 0,
-      intTotalNumberOfAnimeInDatabase: 0,
-      intPagesToDisplay: 5
+      // Error vars
+      boolAnimeNotFound: false,
+      boolFatalError: false,
+      // Misc
+      intTotalNumberOfAnimeInDatabase: 0
     }
   },
   methods: {
@@ -117,6 +131,7 @@ export default defineComponent({
         this.intTotalNumberOfAnime = Number(res.data.data[0].total_number_of_anime)
       }).catch(err => {
         console.error(err)
+        this.boolFatalError = true
       })
     },
     /**
@@ -129,6 +144,7 @@ export default defineComponent({
         this.intTotalNumberOfAnimeInDatabase = res.data.data[0].total_number_of_anime_in_database
       }).catch(err => {
         console.error(err)
+        this.boolFatalError = true
       })
     },
     /**
@@ -152,16 +168,17 @@ export default defineComponent({
           this.strUrlToGetAnime,
           { intDataSet: this.intDataSet, intDataLimit: this.intDataPerPage, strOrder: this.strOrder, strOrderBy: this.strOrderBy, strSearch: this.strAnimeSearch }
         ).then(res => {
-          this.boolAnimeNotFound = 0
+          this.boolAnimeNotFound = false
           this.arrAnime = res.data.data
           const pagination: any = this.$refs.pagination
           pagination.calculatePages()
           pagination.checkDeactivationLogic()
           if (!this.arrAnime.length) {
-            this.boolAnimeNotFound = 1
+            this.boolAnimeNotFound = true
           }
         }).catch(err => {
           console.error(err)
+          this.boolFatalError = true
         })
       })
     },
@@ -261,5 +278,8 @@ export default defineComponent({
   }
   .order-by-desc::after {
     content: ' ⬇️';
+  }
+  .text-red {
+    color: red;
   }
 </style>
